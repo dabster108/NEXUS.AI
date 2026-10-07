@@ -34,6 +34,7 @@ class EvalResult:
     """The outcome of running one eval case."""
 
     case_id: str
+    trial: int = 0
     task_id: str | None = None
     status: str = "pending"
     response: str = ""
@@ -221,6 +222,7 @@ def _record_langfuse(
             "expected_events": case.expected_events,
             "expected_outcome": case.expected_outcome,
             "task_id": result.task_id,
+            "trial": result.trial,
             **case.metadata,
         },
     ) as root:
@@ -229,7 +231,10 @@ def _record_langfuse(
             session_kwargs["session_id"] = result.task_id
         with propagate_attributes(
             tags=["eval", f"run:{run_name}", f"dataset:{dataset_name}", *case.tags],
-            trace_name=f"{run_name}::{case.id}",
+            trace_name=(
+                f"{run_name}::{case.id}"
+                + (f"#{result.trial}" if result.trial else "")
+            ),
             metadata={
                 "dataset": dataset_name,
                 "langfuse_dataset": remote_dataset,
@@ -291,6 +296,7 @@ async def run_case(
     run_name: str = "eval",
     timeout: float = 90.0,
     auto_approve: bool = False,
+    trial: int = 0,
 ) -> EvalResult:
     """Run a single eval case against the live NEXUS backend.
 
@@ -303,6 +309,7 @@ async def run_case(
     result = await _execute_case(
         case, config, timeout=timeout, auto_approve=auto_approve
     )
+    result.trial = trial
     # Recording is best-effort: a Langfuse outage must not wipe local scores.
     try:
         _record_langfuse(
@@ -328,19 +335,28 @@ async def run_dataset(
     run_name: str = "eval",
     auto_approve: bool = False,
     concurrency: int = 1,
+    repeat: int = 1,
+    timeout: float = 90.0,
 ) -> list[EvalResult]:
-    """Run all cases in a dataset, respecting concurrency limit."""
-    sem = asyncio.Semaphore(concurrency)
+    """Run every case ``repeat`` times, respecting the concurrency limit.
 
-    async def _bounded(case: EvalCase) -> EvalResult:
+    Results come back grouped by case, trials in order, so reports read
+    top-to-bottom the same way the dataset does.
+    """
+    sem = asyncio.Semaphore(max(1, concurrency))
+
+    async def _bounded(case: EvalCase, trial: int) -> EvalResult:
         async with sem:
             return await run_case(
                 case,
                 config,
                 dataset_name=dataset_name,
                 run_name=run_name,
+                timeout=timeout,
                 auto_approve=auto_approve,
+                trial=trial,
             )
 
-    results = await asyncio.gather(*[_bounded(c) for c in cases])
+    jobs = [_bounded(case, trial) for case in cases for trial in range(max(1, repeat))]
+    results = await asyncio.gather(*jobs)
     return list(results)

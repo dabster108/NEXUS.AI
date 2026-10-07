@@ -280,10 +280,25 @@ cd backend        && uv run pytest
 cd nexus-mac-mcp  && uv run pytest                  # no windows opened
 cd nexus-mac-mcp  && uv run pytest -m integration   # opt-in macOS checks
 cd frontend       && npm run lint && npm run build
+cd evals          && uv run pytest                  # harness, offline
 ```
 
 MCP integration tests are opt-in so a plain `pytest` never launches apps on
 your machine.
+
+### Evals
+
+The [eval harness](evals/README.md) drives the live backend over HTTP and
+scores each case deterministically. It can repeat trials to flag flaky cases,
+compare against a baseline to catch regressions, and export JUnit for CI:
+
+```bash
+cd evals && uv run python -m src -d core --approve --repeat 3 \
+  --compare results/core.json --junit results/junit.xml --fail-under 0.85
+```
+
+Every run lands in `evals/results/` and is browsable at
+<http://localhost:3000/evals>.
 
 ---
 
@@ -294,6 +309,7 @@ your machine.
 | [`frontend/`](frontend/) | Browser | Show the same facts the model was given, stream the run, collect approvals |
 | [`backend/`](backend/) | Python, loopback | Orchestrate the agent. Own permissions. Never execute Mac code itself |
 | [`nexus-mac-mcp/`](nexus-mac-mcp/) | Child of the backend | Touch the machine. Declare permission metadata. Enforce filesystem and command policy |
+| [`evals/`](evals/) | External client | Drive the backend like a user would, score it, gate regressions |
 
 The layering is strict and one-way:
 
@@ -331,7 +347,8 @@ nexus-mac-mcp/src/nexus_mac_mcp/
 frontend/src/
 ├── lib/useNexus.js    the entire client connection (REST + WebSocket)
 ├── lib/api.js         the one place the frontend knows the backend's shape
-└── app/               landing page, dashboard, components
+├── lib/evals.js       server-only reader for evals/results/*.json
+└── app/               landing page, dashboard, evals, components
 ```
 
 ### Frontend state rule

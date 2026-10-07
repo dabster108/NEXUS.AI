@@ -70,6 +70,10 @@ export async function acceptSuggestion(suggestionId) {
   return response.json();
 }
 
+export async function fetchTasks(options) {
+  return get("/api/tasks?limit=100", options);
+}
+
 export async function fetchTask(taskId, options) {
   return get(`/api/tasks/${taskId}`, options);
 }
