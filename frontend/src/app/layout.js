@@ -1,5 +1,9 @@
+import { ViewTransition } from "react";
 import { Inter, Geist_Mono } from "next/font/google";
+import "./tokens.css";
 import "./globals.css";
+import "./ui.css";
+import "./shell.css";
 
 /**
  * Inter for everything a person reads, Geist Mono for everything a machine
@@ -28,13 +32,29 @@ export const metadata = {
   },
 };
 
+/**
+ * Runs synchronously in <head>, before first paint, so the page never flashes
+ * the wrong theme. `nexus-theme` is "light" | "dark" | "system" (default).
+ * Wrapped in try/catch because storage can throw in private windows.
+ */
+const THEME_SCRIPT = `(function(){try{var p=localStorage.getItem("nexus-theme")||"system";var d=p==="dark"||(p==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute("data-theme",d?"dark":"light")}catch(e){}})()`;
+
 export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
+      data-theme="light"
+      suppressHydrationWarning
       className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="h-full">{children}</body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
+      <body className="h-full">
+        {/* Route changes are transitions, so this crossfades between the
+            landing page and the app with no further wiring. */}
+        <ViewTransition>{children}</ViewTransition>
+      </body>
     </html>
   );
 }

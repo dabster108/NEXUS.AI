@@ -8,7 +8,8 @@ deterministically, writes versioned run artifacts, and records observations in
 Cases (YAML) → Target (NEXUS HTTP) → Judges (scorers)
                     │
                     ├── Artifacts: results/<run>.json (nexus-evals/v1)
-                    ├── Report:    results/<run>.md
+                    ├── Report:    results/<run>.md   (+ optional JUnit XML)
+                    ├── Gates:     failures · baseline regressions · --fail-under
                     └── Telemetry: Langfuse traces / scores / Datasets
 ```
 
@@ -37,10 +38,16 @@ Every run writes a **`nexus-evals/v1`** envelope:
 | --- | --- |
 | `run_name` / `dataset` / `dataset_version` | Identity of the run |
 | `aggregates` | Per-score means + `overall` (excludes latency) |
-| `passed` / `failed` | Cases with status `completed` and quality ≥ 0.7 |
-| `cases[]` | Per-case scores, tools, trace URL, `passed` |
+| `passed` / `failed` | Cases where **every** trial completed with quality ≥ 0.7 |
+| `repeat` / `trial_count` / `flaky` | Trials per case, total trials, cases that both passed and failed |
+| `case_summary[]` | Per case: `pass_rate`, `flaky`, `quality_avg`, p50/max latency |
+| `cases[]` | Per trial: scores, tools, trace URL, `passed`, `trial` |
+| `filters` | `--case` / `--tag` selection, when used |
+| `comparison` | Present with `--compare`: regressions, fixes, deltas |
 
-Exit code **1** if any case fails that bar.
+Exit code **1** when any gate trips: a failed case, a regression against the
+baseline, or `overall` below `--fail-under`. All fields added since the first
+v1 release are additive; a single-trial run has the same counts as before.
 
 ## Commands
 
@@ -51,15 +58,32 @@ Exit code **1** if any case fails that bar.
 | `--approve` | Live run (auto-sync unless `--no-sync`) |
 | `--dry-run --approve` | Local scores only |
 | `--run-name demo-1` | Named run for dashboard filtering |
-| `--list` | List YAML datasets |
+| `--list` | List YAML datasets with version, case count and tags |
+| `--case ID` / `--tag TAG` | Run a subset (repeatable). Unknown ids are an error |
+| `--repeat N` | N trials per case — pass^k verdicts and flakiness detection |
+| `--compare results/core.json` | Diff against a previous envelope; regressions fail the run |
+| `--junit results/junit.xml` | JUnit XML for CI test reporters |
+| `--fail-under 0.85` | Quality floor on aggregate `overall` |
+| `--timeout 120` | Per-task wait in seconds (default 90) |
 
 Artifacts default to `results/<run_name>.json` (+ alias `results/<dataset>.json`).
+A filtered run (`--case`/`--tag`) never rewrites the alias, so the alias stays a
+full-dataset baseline. The baseline is read *before* the run, so comparing
+against the alias the run is about to replace is safe:
+
+```bash
+uv run python -m src -d core --approve --repeat 3 \
+  --compare results/core.json --junit results/junit.xml --fail-under 0.85
+```
+
+Runs are browsable in the frontend at <http://localhost:3000/evals>.
 
 ## Scores
 
 | Score | Role |
 | --- | --- |
 | `tool_selection` | Expected tools called |
+| `event_contract` | Every `expected_events` type was emitted (e.g. `memory_retrieved`) |
 | `outcome` | Verdict / completed SAFE fallback |
 | `keywords` | Expected terms (apostrophe-normalized) |
 | `completion` | Status is `completed` |
@@ -92,7 +116,9 @@ evals/
 │   ├── sync.py         YAML → Langfuse Datasets
 │   ├── runner.py       HTTP driver + Langfuse record
 │   ├── scorers.py
-│   └── report.py       envelope + markdown
+│   ├── report.py       envelope + markdown
+│   ├── compare.py      baseline diff → regressions
+│   └── junit.py        JUnit XML export
 └── tests/
 ```
 

@@ -51,12 +51,15 @@ export function Composer({ busy, onSend, onStop }) {
     if (busy || !text.trim()) return;
     onSend(text);
     setText("");
+    // Release focus so single-key shortcuts (A / D on an approval) work right
+    // after sending; "/" brings it back.
+    area.current?.blur();
   };
 
   return (
     <div className="composer-shell border-t border-[var(--line)] px-4 py-3 sm:px-6">
       <div
-        className="composer-input mx-auto flex max-w-3xl items-end gap-2 rounded-[var(--r-xl)] border bg-[var(--surface)] px-3.5 py-2.5 transition-[border-color,box-shadow] duration-200"
+        className="composer-input mx-auto flex max-w-[800px] items-end gap-2 rounded-[var(--r-xl)] border bg-[var(--surface)] px-3.5 py-2.5 transition-[border-color,box-shadow] duration-200"
         style={{
           borderColor: focused ? "var(--accent)" : "var(--line-2)",
           boxShadow: focused ? "var(--ring)" : "none",
@@ -64,6 +67,7 @@ export function Composer({ busy, onSend, onStop }) {
       >
         <textarea
           ref={area}
+          id="composer-input"
           rows={1}
           value={text}
           onChange={(event) => setText(event.target.value)}
@@ -103,8 +107,8 @@ export function Composer({ busy, onSend, onStop }) {
         )}
       </div>
 
-      <p className="mx-auto mt-2 max-w-3xl px-1 text-[11.5px] text-[var(--ink-3)]">
-        Enter to send · Shift + Enter for a new line
+      <p className="mx-auto mt-2 max-w-[800px] px-1 text-[0.75rem] text-[var(--ink-3)]">
+        Enter to send · Shift + Enter for a new line · / to focus
       </p>
     </div>
   );

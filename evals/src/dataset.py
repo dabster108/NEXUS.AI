@@ -91,3 +91,30 @@ def load_eval_dataset(name: str) -> EvalDataset:
 def list_datasets() -> list[str]:
     """Return names of all available datasets."""
     return sorted(p.stem for p in DATASETS_DIR.glob("*.yaml"))
+
+
+def select_cases(
+    cases: tuple[EvalCase, ...] | list[EvalCase],
+    *,
+    ids: list[str] | None = None,
+    tags: list[str] | None = None,
+) -> list[EvalCase]:
+    """Narrow a dataset to named cases and/or cases carrying any given tag.
+
+    Filters compose (id AND tag). An unknown id is an error rather than an
+    empty run, because a typo that silently selects nothing reads as a pass.
+    """
+    selected = list(cases)
+    if ids:
+        known = {case.id for case in selected}
+        unknown = [case_id for case_id in ids if case_id not in known]
+        if unknown:
+            raise ValueError(f"Unknown case id(s): {', '.join(unknown)}")
+        wanted = set(ids)
+        selected = [case for case in selected if case.id in wanted]
+    if tags:
+        wanted_tags = set(tags)
+        selected = [case for case in selected if wanted_tags & set(case.tags)]
+    if not selected:
+        raise ValueError("No cases match the given --case/--tag filters")
+    return selected

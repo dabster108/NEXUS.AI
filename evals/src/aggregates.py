@@ -10,6 +10,7 @@ from typing import Any
 QUALITY_SCORES: frozenset[str] = frozenset(
     {
         "tool_selection",
+        "event_contract",
         "outcome",
         "keywords",
         "completion",
@@ -65,3 +66,47 @@ def passed_case(result: Any) -> bool:
     if status != "completed":
         return False
     return case_average(getattr(result, "scores", {}) or {}) >= 0.7
+
+
+def summarize_trials(results: Sequence[Any]) -> list[dict[str, Any]]:
+    """Group repeated trials by case and report reliability.
+
+    Agents are nondeterministic, so one green run proves little. A case passes
+    only when *every* trial passes (pass^k); ``flaky`` marks a case that both
+    passed and failed within the same run — the signal a single trial hides.
+    Order follows first appearance, which is dataset order.
+    """
+    grouped: dict[str, list[Any]] = {}
+    for result in results:
+        grouped.setdefault(getattr(result, "case_id", ""), []).append(result)
+
+    summaries: list[dict[str, Any]] = []
+    for case_id, trials in grouped.items():
+        passes = sum(1 for trial in trials if passed_case(trial))
+        latencies = sorted(float(getattr(t, "latency_ms", 0.0) or 0.0) for t in trials)
+        summaries.append(
+            {
+                "case_id": case_id,
+                "trials": len(trials),
+                "passed_trials": passes,
+                "pass_rate": round(passes / len(trials), 4),
+                "passed": passes == len(trials),
+                "flaky": 0 < passes < len(trials),
+                "quality_avg": round(
+                    sum(case_average(getattr(t, "scores", {}) or {}) for t in trials)
+                    / len(trials),
+                    4,
+                ),
+                "latency_p50_ms": round(percentile(latencies, 50), 1),
+                "latency_max_ms": round(latencies[-1], 1),
+            }
+        )
+    return summaries
+
+
+def percentile(sorted_values: Sequence[float], pct: float) -> float:
+    """Nearest-rank percentile of an already-sorted sequence (0 when empty)."""
+    if not sorted_values:
+        return 0.0
+    rank = max(1, round(pct / 100 * len(sorted_values)))
+    return float(sorted_values[min(rank, len(sorted_values)) - 1])
