@@ -27,7 +27,7 @@ export const metadata = {
   title: "NEXUS.ai",
   description: "A local AI operating layer for macOS.",
   icons: {
-    icon: "/logo.png",
+    icon: "/brand-mark.svg",
     apple: "/logo.png",
   },
 };

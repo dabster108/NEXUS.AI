@@ -10,28 +10,32 @@
 
    Contrast (WCAG AA 4.5:1 for text) — measured minimum across the surfaces
    each token is used on (bg, surface, surface-2/3, bg-tint, tinted chips):
-     light  ink 16.9 · ink-2 6.6 · ink-3 4.7 · accent-ink 6.4 · status inks 4.8+
-     dark   ink 15.0 · ink-2 7.6 · ink-3 5.2 · accent-ink 7.4 · status inks 7.7+
-     terminal (both themes)  ink 15.7 · ink-3 6.1 · accent 9.3
-   White on the accent gradient is 4.6–5.8. Re-check with a contrast tool after
+     light  ink 15.8 · ink-2 6.6 · ink-3 4.8 · accent-ink 6.9 · status inks 4.8+
+     dark   ink 12.8 · ink-2 7.6 · ink-3 5.2 · accent-ink 7.8 · status inks 7.8+
+     terminal (both themes)  ink 15.7 · ink-3 6.1 · accent 9.7
+   White on the accent gradient is 4.7–5.3. Re-check with a contrast tool after
    changing any value; the numbers above are only true for the values below.
    `ink-4` is decorative (separators, disabled glyphs) and is never text.
 
    The terminal is the one dark object that appears in BOTH themes, and it is
    always this navy. That is what makes it read as "the machine", the same
    everywhere, and why it is defined once as --term-* rather than per theme.
+
+   Translucent washes, rings and glows are built from the *-rgb channel tokens
+   (`rgb(var(--accent-rgb) / 0.2)`) so they follow the theme and can never drift
+   from the solid accent — there is exactly one indigo and one violet.
    ========================================================================= */
 
 :root {
   color-scheme: light;
 
   /* --- ground ------------------------------------------------------------ */
-  --bg: #f6f8fc; /* app ground and the context rail */
+  --bg: #f7f8fc; /* app ground and the context rail */
   --bg-1: #ffffff; /* the primary canvas */
-  --bg-tint: #f1f4ff; /* the faint indigo wash behind "How it works" */
+  --bg-tint: #f2f3ff; /* the faint indigo wash behind "How it works" */
   --surface: #ffffff; /* cards */
   --surface-2: #f7f9fd; /* inset surfaces inside a card */
-  --surface-3: #eceff8; /* the one step deeper, used sparingly */
+  --surface-3: #eef0f7; /* the one step deeper, used sparingly */
   --hover: rgb(100 116 139 / 0.1); /* row / nav hover wash */
   --glass: rgb(255 255 255 / 0.72); /* translucent bars */
   --overlay: rgb(15 23 42 / 0.4);
@@ -45,24 +49,31 @@
   --ink: #0f1629; /* primary */
   --ink-deep: #0b1220; /* brand + gradient-text anchor */
   --ink-2: #475569; /* secondary */
-  --ink-3: #5b6b82; /* muted — AA on every light surface */
+  --ink-3: #5a6a82; /* muted — AA on every light surface */
   --ink-4: #c3cbdb; /* decorative only */
   --on-accent: #ffffff;
 
   /* --- accent: indigo → violet -------------------------------------------- */
-  --accent: #4568f5;
-  --accent-2: #3454d8; /* pressed / hover */
-  --accent-ink: #304bc5; /* accent as text */
+  --accent: #3f5ef0;
+  --accent-2: #3049d6; /* pressed / hover */
+  --accent-ink: #2f4bc7; /* accent as text */
   --accent-bg: #eef2ff;
-  --accent-line: #d9e0ff;
-  --violet: #7c5cf0;
-  --violet-bg: #f3efff;
-  --accent-grad: linear-gradient(135deg, #4568f5 0%, #6a58ea 55%, #7c4ee0 100%);
-  --accent-grad-text: linear-gradient(100deg, #4568f5 0%, #7c4ee0 45%, #4568f5 100%);
+  --accent-line: #d9e1ff;
+  --violet: #6a5df0; /* an indigo tint, never a true purple */
+  --violet-bg: #f1f0ff;
+  --accent-grad: linear-gradient(135deg, #3f5ef0 0%, #5160ee 55%, #6a5df0 100%);
+  --accent-grad-text: linear-gradient(100deg, #3f5ef0 0%, #6a5df0 45%, #3f5ef0 100%);
+
+  /* channels of the solids above, for translucent washes / rings / glows */
+  --accent-rgb: 63 94 240;
+  --violet-rgb: 106 93 240;
+  --sky-rgb: 56 189 248;
+  --ok-rgb: 34 197 94;
+  --shadow-rgb: 15 23 42;
 
   /* --- meaning: a saturated value for indicators, a darker one for text ---- */
   --ok: #22c55e;
-  --ok-ink: #15803d;
+  --ok-ink: #137636;
   --ok-bg: #effcf3;
   --warn: #f59e0b;
   --warn-ink: #a04a07;
@@ -72,12 +83,12 @@
   --danger-bg: #fef1f1;
 
   /* --- depth -------------------------------------------------------------- */
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.05);
-  --shadow-md: 0 8px 22px -8px rgb(15 23 42 / 0.14), 0 2px 6px -2px rgb(15 23 42 / 0.05);
-  --shadow-lg: 0 22px 55px -18px rgb(15 23 42 / 0.2), 0 5px 16px -5px rgb(15 23 42 / 0.07);
-  --shadow-xl: 0 35px 90px -30px rgb(15 23 42 / 0.3), 0 10px 28px -10px rgb(15 23 42 / 0.09);
-  --ring: 0 0 0 4px rgb(69 104 245 / 0.18);
-  --accent-glow: 0 7px 18px -8px rgb(69 104 245 / 0.8);
+  --shadow-sm: 0 1px 2px rgb(var(--shadow-rgb) / 0.05);
+  --shadow-md: 0 8px 22px -8px rgb(var(--shadow-rgb) / 0.14), 0 2px 6px -2px rgb(var(--shadow-rgb) / 0.05);
+  --shadow-lg: 0 22px 55px -18px rgb(var(--shadow-rgb) / 0.2), 0 5px 16px -5px rgb(var(--shadow-rgb) / 0.07);
+  --shadow-xl: 0 35px 90px -30px rgb(var(--shadow-rgb) / 0.3), 0 10px 28px -10px rgb(var(--shadow-rgb) / 0.09);
+  --ring: 0 0 0 4px rgb(var(--accent-rgb) / 0.2);
+  --accent-glow: 0 7px 18px -8px rgb(var(--accent-rgb) / 0.75);
 
   /* --- terminal / code: identical in both themes -------------------------- */
   --term-bg: #0b1220;
@@ -86,7 +97,7 @@
   --term-ink-2: #b4bfd6;
   --term-ink-3: #8593b1; /* 5.9:1 on --term-bg */
   --term-line: rgb(255 255 255 / 0.1);
-  --term-accent: #a3b3ff;
+  --term-accent: #a9b8ff;
   --term-prompt: #7dd3fc;
   --term-pass: #86efac;
   --term-warn: #fcd34d;
@@ -161,13 +172,18 @@
 
   --accent: #5b78ff;
   --accent-2: #7a92ff;
-  --accent-ink: #a4b4ff;
+  --accent-ink: #a9b8ff;
   --accent-bg: rgb(91 120 255 / 0.14);
   --accent-line: rgb(120 140 255 / 0.3);
-  --violet: #9b7bff;
-  --violet-bg: rgb(155 123 255 / 0.14);
-  --accent-grad: linear-gradient(135deg, #4a68f0 0%, #6552e6 55%, #7447d8 100%);
-  --accent-grad-text: linear-gradient(100deg, #8fa3ff 0%, #b79bff 45%, #8fa3ff 100%);
+  --violet: #8f86ff;
+  --violet-bg: rgb(143 134 255 / 0.14);
+  --accent-grad: linear-gradient(135deg, #4a68f0 0%, #5560ec 55%, #6458e6 100%);
+  --accent-grad-text: linear-gradient(100deg, #8fa3ff 0%, #a99bff 45%, #8fa3ff 100%);
+
+  --accent-rgb: 91 120 255;
+  --violet-rgb: 143 134 255;
+  --ok-rgb: 52 211 153;
+  --shadow-rgb: 0 0 0;
 
   --ok: #34d399;
   --ok-ink: #6ee7b0;
@@ -183,8 +199,8 @@
   --shadow-md: 0 8px 22px -8px rgb(0 0 0 / 0.55), 0 2px 6px -2px rgb(0 0 0 / 0.4);
   --shadow-lg: 0 22px 55px -18px rgb(0 0 0 / 0.65), 0 5px 16px -5px rgb(0 0 0 / 0.4);
   --shadow-xl: 0 35px 90px -30px rgb(0 0 0 / 0.75), 0 10px 28px -10px rgb(0 0 0 / 0.45);
-  --ring: 0 0 0 4px rgb(91 120 255 / 0.28);
-  --accent-glow: 0 7px 20px -8px rgb(91 120 255 / 0.7);
+  --ring: 0 0 0 4px rgb(var(--accent-rgb) / 0.3);
+  --accent-glow: 0 7px 20px -8px rgb(var(--accent-rgb) / 0.65);
 }
 
 @theme inline {

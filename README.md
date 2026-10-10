@@ -1,29 +1,157 @@
 <div align="center">
 
-<h1>NEXUS.ai</h1>
+<img src="frontend/public/brand-mark.svg" alt="NEXUS.ai" width="72" height="72">
+
+# NEXUS.ai
+
+**The AI layer that understands your Mac.**<br>
+Understand your workspace. Act with approval. Verify the result.
 
 <p>
-  <img src="frontend/public/logo.png" alt="NEXUS.ai agent logo" width="160" />
+  <img alt="macOS" src="https://img.shields.io/badge/macOS-local--first-0f1629?style=flat-square">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.14%2B-4f46e5?style=flat-square">
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-0f1629?style=flat-square">
+  <img alt="LangGraph" src="https://img.shields.io/badge/LangGraph-agent-7c3aed?style=flat-square">
+  <img alt="MCP" src="https://img.shields.io/badge/MCP-stdio-4f46e5?style=flat-square">
+  <img alt="Models" src="https://img.shields.io/badge/models-Groq%20%C2%B7%20Mistral-0f1629?style=flat-square">
 </p>
 
-<p><strong>A local AI operating layer for macOS</strong></p>
+<p>
+  <a href="#quick-start"><strong>Get started</strong></a> ·
+  <a href="#product-tour">Product tour</a> ·
+  <a href="#trust-model">Trust model</a> ·
+  <a href="docs/README.md">Screenshot gallery</a> ·
+  <a href="DECISIONS.md">Architecture decisions</a>
+</p>
 
-<p>Understand your workspace. Act with approval. Verify the result.</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/landing-hero-dark.png">
+  <img src="docs/images/landing-hero-light.png" alt="The NEXUS.ai landing page" width="920">
+</picture>
+
+</div>
 
 NEXUS.ai gives an AI agent a bounded, explainable view of your Mac — your
 workspace, Git state, processes, local services, and durable project memory —
 without turning your computer into an unattended automation target.
 
-<p>🧠 LangGraph · 🔌 MCP · ⚡ FastAPI · ⚛️ Next.js · 🐍 Python · 🍎 macOS</p>
+| **25** | **19** | **6** | **0** |
+| :---: | :---: | :---: | :---: |
+| Mac capabilities discovered over MCP | `SAFE` tools · read-only, run instantly | `CONFIRM` tools · stop for you, every time | Network listeners on the MCP server |
 
-<p>
-  <a href="#quick-start">Quick start</a> ·
-  <a href="#what-nexus-does">Capabilities</a> ·
-  <a href="#trust-model">Trust model</a> ·
-  <a href="DECISIONS.md">Architecture decisions</a>
-</p>
+---
 
-</div>
+## Product tour
+
+### 1. It reads your environment before it answers
+
+Active workspace, branch, uncommitted changes, running servers and remembered
+facts are gathered through read-only tools and shown to you — the same bundle the
+model receives.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/dashboard-command-dark.png">
+  <img src="docs/images/dashboard-command-light.png" alt="The NEXUS command view with workspace, noticed events and remembered facts" width="900">
+</picture>
+
+### 2. It stops before it changes anything
+
+Every tool that changes your Mac is `CONFIRM`. The pipeline pauses at
+**Approval**, shows the exact command and working directory, and waits for you.
+Approval covers one call and is never reused.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/flow-1-approval-gate-dark.png">
+  <img src="docs/images/flow-1-approval-gate-light.png" alt="A pending approval showing the exact command to be run" width="900">
+</picture>
+
+### 3. It checks its own work
+
+`SUCCESS` needs evidence, not a tool return. After the action NEXUS re-checks
+with SAFE-only tools and reports what it actually observed.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/flow-2-verified-outcome-dark.png">
+  <img src="docs/images/flow-2-verified-outcome-light.png" alt="A verified outcome with observed process status and an HTTP 200" width="900">
+</picture>
+
+### 4. It remembers, and admits when memory is stale
+
+Typed, confidence-scored facts live in SQLite and are marked `outdated` the
+moment live evidence disagrees.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/dashboard-memory-dark.png">
+  <img src="docs/images/dashboard-memory-light.png" alt="The memory view listing facts with confidence and verification state" width="900">
+</picture>
+
+### 5. It shows its receipts
+
+Every request lands in a timeline and an exportable audit log — what was asked,
+which tier it ran at, and what the decision was.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/dashboard-timeline-light.png" alt="The request timeline" width="440"></td>
+    <td width="50%"><img src="docs/images/dashboard-audit-log-light.png" alt="The audit log" width="440"></td>
+  </tr>
+</table>
+
+### 6. It is measured, not claimed
+
+An external eval harness drives the live backend, scores each case
+deterministically, repeats trials to catch flaky behaviour, diffs against a
+baseline, and exports JUnit for CI. See [`evals/`](evals/README.md).
+
+<img src="docs/images/landing-eval-harness-light.png" alt="The eval harness section of the landing page" width="900">
+
+<details>
+<summary><strong>More views</strong> — context, processes, Git, tools, settings, light and dark</summary>
+
+<br>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/dashboard-context-light.png" alt="Context view" width="440"></td>
+    <td width="50%"><img src="docs/images/dashboard-processes-light.png" alt="Processes view" width="440"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/dashboard-git-workspace-light.png" alt="Git and workspace view" width="440"></td>
+    <td width="50%"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/dashboard-tools-dark.png">
+  <img src="docs/images/dashboard-tools-light.png" alt="MCP tools view" width="440">
+</picture></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/dashboard-approvals-light.png" alt="Approvals inbox" width="440"></td>
+    <td width="50%"><img src="docs/images/dashboard-settings-light.png" alt="Settings view" width="440"></td>
+  </tr>
+</table>
+
+Everything above also ships in a dark theme — see the
+[screenshot gallery](docs/README.md).
+
+</details>
+
+### Built for any screen
+
+Tables collapse into labelled cards, the sidebar becomes a drawer, and the
+approval gate stays one thumb away.
+
+<table>
+  <tr>
+    <td align="center" width="25%"><img src="docs/images/mobile-landing-light.png" alt="Landing page on a phone" width="200"></td>
+    <td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/mobile-memory-dark.png"><img src="docs/images/mobile-memory-light.png" alt="Memory view on a phone" width="200"></picture></td>
+    <td align="center" width="25%"><img src="docs/images/mobile-timeline-light.png" alt="Timeline on a phone" width="200"></td>
+    <td align="center" width="25%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/images/mobile-approval-dark.png"><img src="docs/images/mobile-approval-light.png" alt="Approval gate on a phone" width="200"></picture></td>
+  </tr>
+</table>
+
+> **About these screenshots.** They were captured from the dashboard's built-in
+> *sample-data* mode, a simulated environment the UI falls back to when no
+> backend is reachable (it is labelled "Sample data" in the app). Nothing in
+> them touches a real Mac. The landing-page replay and eval terminal are
+> illustrative, as labelled on the page.
 
 ---
 
@@ -37,22 +165,6 @@ your Mac, and reports the evidence behind the result.
 It is deliberately local, single-user, and approval-gated. The model chooses
 what to ask for; the backend decides what may run; the Mac MCP server performs
 the capability behind a real process boundary.
-
-```text
-┌─────────────┐   HTTP / WebSocket    ┌──────────────────────────┐
-│  frontend   │ ───────────────────►  │  backend (FastAPI)       │
-│  Next.js    │                       │  LangGraph agent         │
-│  :3000      │                       │  Groq / Mistral          │
-└─────────────┘                       │  context + permissions   │
-                                      └────────────┬─────────────┘
-                                                   │ stdio (MCP)
-                                                   ▼
-                                      ┌──────────────────────────┐
-                                      │  nexus-mac-mcp           │
-                                      │  no network listener     │
-                                      │  tools → macOS           │
-                                      └──────────────────────────┘
-```
 
 The backend binds to `127.0.0.1` on purpose. The MCP server has no socket and
 must never be given one.
@@ -213,15 +325,20 @@ NEXUS currently runs on macOS and requires:
 The backend and MCP server are local. The model provider is the only external
 service NEXUS contacts.
 
+> **Model limits.** Each agent request offers all 25 tool schemas to the model
+> (~3.6k tokens). On Groq's free tier the cap is 8,000 tokens/minute per model,
+> so multi-step requests can pause on `429` retries for tens of seconds. A paid
+> Groq tier removes the wait; the model choice itself is not the bottleneck.
+
 ### 1. Configure and start the backend
 
 ```bash
 cd backend
 uv sync
 cp .env.example .env
-#   Set GROQ_API_KEY and GROQ_MODEL to a model your account can use.
-#   Or configure MISTRAL_API_KEY, MISTRAL_MODEL and
-#   DEFAULT_MODEL_PROVIDER=mistral.
+#   Set GROQ_API_KEY. The example file defaults to GROQ_MODEL=qwen/qwen3.8-27b.
+#   Or configure MISTRAL_API_KEY, MISTRAL_MODEL (default ministral-8b-latest)
+#   and DEFAULT_MODEL_PROVIDER=mistral.
 uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
@@ -293,6 +410,11 @@ scores each case deterministically. It can repeat trials to flag flaky cases,
 compare against a baseline to catch regressions, and export JUnit for CI:
 
 ```bash
+cd evals && uv run pytest                        # offline: no backend, no model
+cd evals && uv run python -m src --check         # offline: credentials/URL only
+
+# LIVE: real model calls, and --approve really approves CONFIRM tools
+# (it will, for example, open apps on this Mac). --dry-run only skips Langfuse.
 cd evals && uv run python -m src -d core --approve --repeat 3 \
   --compare results/core.json --junit results/junit.xml --fail-under 0.85
 ```

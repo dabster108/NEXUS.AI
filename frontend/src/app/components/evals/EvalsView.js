@@ -350,6 +350,10 @@ function EmptyEvals({ dir, legacy, missing }) {
         <span className="text-[var(--ink-3)]">$</span> cd evals{"\n"}
         <span className="text-[var(--ink-3)]">$</span> uv run python -m src --dry-run --approve
       </pre>
+      <p className="t-caption mx-auto mt-3 max-w-md">
+        This is a live run: it uses the real model and <span className="mono">--approve</span> approves
+        CONFIRM tools on your Mac, so start it only when you are at the keyboard.
+      </p>
       <p className="mono mt-4 break-all text-[11px] text-[var(--ink-3)]">{dir}</p>
     </div>
   );

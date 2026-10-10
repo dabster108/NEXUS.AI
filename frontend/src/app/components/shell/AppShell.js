@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { basename } from "@/lib/format";
 import { useApp } from "./NexusProvider";
@@ -11,6 +10,7 @@ import { CommandPalette } from "./CommandPalette";
 import { Toaster } from "./Toaster";
 import { ThemeToggle } from "../ThemeToggle";
 import { Icon } from "../ui/icons";
+import { BrandMark } from "../ui/BrandMark";
 import { StatusDot, Kbd } from "../ui/primitives";
 
 /**
@@ -25,7 +25,7 @@ import { StatusDot, Kbd } from "../ui/primitives";
 function Brand({ compact = false }) {
   return (
     <Link href="/" className="brand" aria-label="NEXUS.ai — back to the home page">
-      <Image src="/logo.png" alt="" width={28} height={28} className="brand-logo h-[26px] w-[26px] rounded-full object-cover" />
+      <BrandMark size={26} />
       {compact ? null : (
         <span className="brand-word">
           NEXUS<span className="text-[var(--accent-ink)]">.ai</span>

@@ -42,9 +42,9 @@
 .btn-pulse { animation: btn-pulse 2.2s var(--ease) infinite; }
 
 @keyframes btn-pulse {
-  0% { box-shadow: var(--accent-glow), 0 0 0 0 rgb(69 104 245 / 0.5); }
-  70% { box-shadow: var(--accent-glow), 0 0 0 9px rgb(69 104 245 / 0); }
-  100% { box-shadow: var(--accent-glow), 0 0 0 0 rgb(69 104 245 / 0); }
+  0% { box-shadow: var(--accent-glow), 0 0 0 0 rgb(var(--accent-rgb) / 0.5); }
+  70% { box-shadow: var(--accent-glow), 0 0 0 9px rgb(var(--accent-rgb) / 0); }
+  100% { box-shadow: var(--accent-glow), 0 0 0 0 rgb(var(--accent-rgb) / 0); }
 }
 
 /* --- status dots ----------------------------------------------------------- */
@@ -327,4 +327,31 @@
   .btn-pulse, .dot-pulse-ok, .dot-pulse-warn, .dot-pulse-danger, .dot-pulse-accent, .step-running .step-node { animation: none; }
   .magnetic { transition: none; }
   .drawer[open], .drawer[open]::backdrop, .toast, .tab[aria-selected="true"]::after { animation: none; }
+}
+
+/* --- table: stacked cards on phones ----------------------------------------
+   Seven-column audit rows cannot be read through a 358px window, so below 640px
+   every row becomes a card of "LABEL  value" pairs. The header row stays in the
+   accessibility tree (see Table) and each cell carries its label in data-label. */
+@media (max-width: 640px) {
+  .table-wrap { overflow: visible; border: 0; background: transparent; }
+  .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
+  .table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .table tbody tr {
+    margin-bottom: 10px; padding: 6px 0;
+    border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface);
+    box-shadow: var(--shadow-sm);
+  }
+  .table tbody tr:last-child td, .table td { border-bottom: 0; }
+  .table td {
+    display: grid; grid-template-columns: minmax(78px, 30%) minmax(0, 1fr); align-items: start;
+    gap: 12px; padding: 7px 14px; text-align: left !important; justify-items: start;
+  }
+  .table td[data-label]::before {
+    content: attr(data-label); padding-top: 2px;
+    font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .table td:not([data-label]) { display: flex; justify-content: flex-end; padding-top: 2px; }
+  .table td[colspan] { display: block; padding: 0; }
+  .table .cell-title { max-width: none; white-space: normal; }
 }

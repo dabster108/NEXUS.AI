@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ProductPreview } from "./components/landing/ProductPreview";
 import { Reveal } from "./components/landing/Reveal";
 import { Pipeline } from "./components/landing/Pipeline";
@@ -7,6 +6,7 @@ import { PermissionExplorer } from "./components/landing/PermissionExplorer";
 import { HarnessTerminal } from "./components/landing/HarnessTerminal";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { Magnetic } from "./components/ui/interactive";
+import { BrandMark } from "./components/ui/BrandMark";
 import {
   CopyButton,
   CountUp,
@@ -83,8 +83,8 @@ const QUICKSTART = [
   },
   {
     title: "Measure it",
-    body: "Run the eval harness against the live backend.",
-    code: "cd evals && uv sync\nuv run python -m src --dry-run --approve",
+    body: "Check the harness offline, then run it against the live backend.",
+    code: "cd evals && uv sync && uv run pytest\nuv run python -m src --check",
   },
 ];
 
@@ -118,14 +118,7 @@ const FAQ = [
 function Logo() {
   return (
     <span className="flex items-center gap-2.5">
-      <Image
-        src="/logo.png"
-        alt=""
-        width={30}
-        height={30}
-        className="brand-logo h-7 w-7 rounded-full object-cover"
-        priority
-      />
+      <BrandMark size={28} />
       <span className="text-[14px] font-bold tracking-[0.12em]">
         NEXUS<span className="text-[var(--accent-ink)]">.ai</span>
       </span>
