@@ -56,6 +56,11 @@ Approval covers one call and is never reused.
 
 <img src="docs/images/flow-1-approval-gate.png" alt="A pending approval showing the exact command to be run" width="900">
 
+Pending calls also collect in the **Approvals** inbox, where you can approve,
+deny or narrow the scope from the keyboard (`A`, `D`, `E`).
+
+<img src="docs/images/dashboard-approvals.png" alt="The approvals inbox with a pending call and recent decisions" width="900">
+
 ### 3. It checks its own work
 
 `SUCCESS` needs evidence, not a tool return. After the action NEXUS re-checks
@@ -63,14 +68,25 @@ with SAFE-only tools and reports what it actually observed.
 
 <img src="docs/images/flow-2-verified-outcome.png" alt="A verified outcome with observed process status and an HTTP 200" width="900">
 
-### 4. It remembers, and admits when memory is stale
+### 4. Every run can be opened and explained
+
+Open any request to see the nine pipeline stages, what NEXUS knew before it
+acted, and what it verified afterwards — recorded decisions and evidence, never
+hidden reasoning.
+
+<img src="docs/images/dashboard-run-detail.png" alt="A run detail drawer with the pipeline, before and after evidence" width="900">
+
+### 5. It remembers, and admits when memory is stale
 
 Typed, confidence-scored facts live in SQLite and are marked `outdated` the
-moment live evidence disagrees.
+moment live evidence disagrees. Saving or forgetting a fact is itself a
+`CONFIRM` action.
 
 <img src="docs/images/dashboard-memory.png" alt="The memory view listing facts with confidence and verification state" width="900">
 
-### 5. It shows its receipts
+<img src="docs/images/dashboard-memory-detail.png" alt="A memory detail drawer showing an outdated fact and the live evidence against it" width="900">
+
+### 6. It shows its receipts
 
 Every request lands in a timeline and an exportable audit log — what was asked,
 which tier it ran at, and what the decision was.
@@ -82,16 +98,25 @@ which tier it ran at, and what the decision was.
   </tr>
 </table>
 
-### 6. It is measured, not claimed
+### 7. It is measured, not claimed
 
 An external eval harness drives the live backend, scores each case
 deterministically, repeats trials to catch flaky behaviour, diffs against a
-baseline, and exports JUnit for CI. See [`evals/`](evals/README.md).
+baseline, and exports JUnit for CI. The Evals page reads the harness's result
+files directly — the run below is a real local run, including the case that
+still fails. See [`evals/`](evals/README.md).
 
-<img src="docs/images/landing-eval-harness.png" alt="The eval harness section of the landing page" width="900">
+<img src="docs/images/dashboard-evals.png" alt="The Evals page with pass rate, quality by run, score breakdown and diff against a baseline" width="900">
+
+### 8. Keyboard first
+
+`⌘K` jumps to any page, reopens a recent run, or sends text to the agent — and
+says plainly that nothing runs without your approval.
+
+<img src="docs/images/command-palette.png" alt="The command palette searching for git" width="900">
 
 <details>
-<summary><strong>More views</strong> — context, processes, Git, tools, settings</summary>
+<summary><strong>More views</strong> — context, processes, Git, tools, settings, pipeline</summary>
 
 <br>
 
@@ -105,8 +130,8 @@ baseline, and exports JUnit for CI. See [`evals/`](evals/README.md).
     <td width="50%"><img src="docs/images/dashboard-tools.png" alt="MCP tools view" width="440"></td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/images/dashboard-approvals.png" alt="Approvals inbox" width="440"></td>
     <td width="50%"><img src="docs/images/dashboard-settings.png" alt="Settings view" width="440"></td>
+    <td width="50%"><img src="docs/images/landing-how-it-works.png" alt="The nine-stage request pipeline" width="440"></td>
   </tr>
 </table>
 
