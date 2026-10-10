@@ -56,7 +56,7 @@ v1 release are additive; a single-trial run has the same counts as before.
 | `--check` | Verify Langfuse API keys |
 | `--sync -d smoke` | Upsert YAML → Langfuse Dataset |
 | `--approve` | Live run (auto-sync unless `--no-sync`) |
-| `--dry-run --approve` | Local scores only |
+| `--dry-run --approve` | Skip the Langfuse upload. **Still a live run**: it calls the backend and the real model, and `--approve` auto-approves CONFIRM tools (e.g. it opens TextEdit) |
 | `--run-name demo-1` | Named run for dashboard filtering |
 | `--list` | List YAML datasets with version, case count and tags |
 | `--case ID` / `--tag TAG` | Run a subset (repeatable). Unknown ids are an error |

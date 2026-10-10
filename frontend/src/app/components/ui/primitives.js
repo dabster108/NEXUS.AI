@@ -118,26 +118,27 @@ export function ErrorState({ title = "Something went wrong", children, action })
 export function Table({ columns, rows, rowKey, onRowClick, caption, dense = false, empty }) {
   return (
     <div className="table-wrap">
-      <table className={cx("table", dense && "table-dense")}>
+      <table role="table" className={cx("table", dense && "table-dense")}>
         {caption ? <caption className="sr-only">{caption}</caption> : null}
-        <thead>
-          <tr>
+        <thead role="rowgroup">
+          <tr role="row">
             {columns.map((c) => (
-              <th key={c.key} scope="col" className={c.align === "right" ? "text-right" : undefined}>
+              <th key={c.key} scope="col" role="columnheader" className={c.align === "right" ? "text-right" : undefined}>
                 {c.label || <span className="sr-only">Actions</span>}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody role="rowgroup">
           {rows.length === 0 ? (
-            <tr>
-              <td colSpan={columns.length}>{empty}</td>
+            <tr role="row">
+              <td role="cell" colSpan={columns.length}>{empty}</td>
             </tr>
           ) : (
             rows.map((row) => (
               <tr
                 key={rowKey(row)}
+                role="row"
                 className={onRowClick ? "is-clickable" : undefined}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
                 onKeyDown={
@@ -153,7 +154,7 @@ export function Table({ columns, rows, rowKey, onRowClick, caption, dense = fals
                 tabIndex={onRowClick ? 0 : undefined}
               >
                 {columns.map((c) => (
-                  <td key={c.key} className={c.align === "right" ? "text-right" : undefined}>
+                  <td key={c.key} role="cell" data-label={c.label || undefined} className={c.align === "right" ? "text-right" : undefined}>
                     {c.render ? c.render(row) : row[c.key]}
                   </td>
                 ))}

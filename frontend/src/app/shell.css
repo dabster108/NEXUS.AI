@@ -79,7 +79,7 @@
   border-bottom: 1px solid var(--line);
   background: var(--glass); backdrop-filter: blur(14px);
 }
-.topbar-title { font-size: 0.9375rem; font-weight: 640; letter-spacing: -0.015em; }
+.topbar-title { font-size: 0.9375rem; font-weight: 640; letter-spacing: -0.015em; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar-ws { display: none; align-items: center; gap: 8px; font-size: 0.8125rem; min-width: 0; }
 .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .menu-btn { display: none; margin-left: -8px; }
@@ -179,6 +179,8 @@
   .sidebar { display: none; }
   .menu-btn { display: inline-flex; }
   .topbar { padding: 0 12px 0 16px; }
+  /* A custom .chip display wins over Tailwind's layered `hidden`, so say it here. */
+  .topbar-right .chip, .palette-trigger .kbd { display: none; }
   .page-inner { padding: 24px 16px 48px; }
   .strip { padding: 0 16px; }
   .sheet-left .brand-word, .sheet-left .nav-label, .sheet-left .side-heading, .sheet-left .nav-badge { display: revert; }
@@ -196,13 +198,17 @@
 .cmd { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
 .cmd-main { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--bg-1); }
 .cmd-rail { display: none; min-height: 0; border-left: 1px solid var(--line); background: var(--bg); }
-.cmd-strip { display: flex; padding: 12px 16px 0; }
+.cmd-strip {
+  display: flex; padding: 12px 16px 10px; position: relative; z-index: 2; flex: none;
+  /* opaque, so scrolled content never shows through behind the button */
+  background: var(--bg-1); border-bottom: 1px solid var(--line);
+}
 .cmd-error { max-width: 800px; width: 100%; margin: 0 auto; padding: 0 24px 8px; font-size: 0.8125rem; color: var(--danger-ink); }
 
 @media (min-width: 1280px) {
   .cmd { grid-template-columns: minmax(0, 1fr) 320px; }
   .cmd-rail { display: block; }
-  .xl-hide { display: none !important; }
+  .xl-hide, .cmd-strip { display: none !important; }
 }
 
 .transcript { max-width: 800px; margin: 0 auto; padding: 24px 24px 16px; display: grid; gap: 28px; }
@@ -453,10 +459,9 @@
 .callout-danger { background: var(--danger-bg); color: var(--danger-ink); margin-top: 12px; }
 
 .proc { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
-.proc-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 12px 0; border-block: 1px solid var(--line); }
-.proc-meta dt { font-size: 0.75rem; color: var(--ink-3); } .proc-meta dd { margin: 2px 0 0; font-size: 0.8125rem; overflow-wrap: anywhere; }
+.proc-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 12px; margin: 0; padding: 12px 0; border-block: 1px solid var(--line); }
+.proc-meta dt { font-size: 0.75rem; color: var(--ink-3); } .proc-meta dd { margin: 2px 0 0; font-size: 0.8125rem; overflow-wrap: break-word; word-break: normal; }
 .proc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-@media (max-width: 480px) { .proc-meta { grid-template-columns: 1fr 1fr; } }
 
 .commits { list-style: none; margin: 0; padding: 0; }
 .commits li { display: flex; gap: 12px; padding: 10px 20px; border-top: 1px solid var(--line); font-size: 0.8125rem; }
@@ -474,3 +479,8 @@
 .choice.is-on { border-color: var(--accent); background: var(--accent-bg); }
 .shortcuts { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
 .shortcuts li { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 12px; font-size: 0.875rem; color: var(--ink-2); }
+
+/* Filter chips wrap on phones instead of hiding the last option off-screen. */
+@media (max-width: 640px) {
+  .segmented { flex-wrap: wrap; overflow-x: visible; }
+}

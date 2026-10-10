@@ -5,7 +5,7 @@ Usage:
     uv run python -m src --check
     uv run python -m src --sync -d smoke
     uv run python -m src -d smoke --approve
-    uv run python -m src --dry-run --approve
+    uv run python -m src --dry-run --approve   # live run, no Langfuse upload
     uv run python -m src -d core --approve --repeat 3 --compare results/core.json
     uv run python -m src --dry-run --tag safe --junit results/junit.xml
 """
@@ -58,7 +58,11 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--dry-run",
         action="store_true",
-        help="Score locally only — no Langfuse credentials required",
+        help=(
+            "Skip Langfuse (no credentials required). Still LIVE: it calls the "
+            "backend and the real model, and with --approve it approves CONFIRM "
+            "tools on this Mac."
+        ),
     )
     p.add_argument(
         "--sync",
